@@ -11,7 +11,7 @@ fun main() {
         install(WebSockets)
     }
     runBlocking {
-        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/companion") {
+        client.webSocket(method = HttpMethod.Get, host = ClientConfig.HOST_URL, port = 8080, path = "/companion") {
             val outputJob = launch {
                 outputMessages()
             }
