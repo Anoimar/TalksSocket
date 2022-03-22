@@ -1,9 +1,12 @@
 package com.thernat
 
+import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
 import io.ktor.websocket.*
+import java.time.Instant
+import java.time.LocalDateTime
 import java.util.Collections
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -20,13 +23,20 @@ fun Application.module(testing: Boolean = false) {
                 connections += it
             }
             try {
-                send("You are connected! You are our ${connections.count()} guest")
+                send("You are connected! " +
+                        "You are our ${connections.count()} guest." +
+                "You will be known as ${currentConnection.userName}"
+                )
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
                     frame.readText().let { msg ->
-                        val from = currentConnection.userName
+                        val msgModel = MsgModel(
+                            currentConnection.userName,
+                            msg,
+                            Instant.now().epochSecond.toString()
+                        )
                         connections.forEach {
-                            it.session.send("$from: $msg")
+                            it.session.send(Gson().toJson(msgModel))
                         }
                     }
                 }
